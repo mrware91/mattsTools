@@ -4,6 +4,21 @@ Author: Matthew R. Ware (mrware91@gmail.com)
 Description: Tools to save and load python variables fast and efficiently.
 """
 import pickle
+from ioOperations import *
+
+def fload_obj(name):
+    """
+    Finds objects with name 'name.pkl' then loads the object and returns its value
+
+    Args:
+        name: String designating the file. Functions will laod first object
+              with the name 'name.pkl' it finds
+
+    Returns:
+        The value of the object in filename
+    """
+    filename = findPath(name+'.pkl')[:-4]
+    return load_obj(filename)
 
 def load_obj(filename ):
     """
