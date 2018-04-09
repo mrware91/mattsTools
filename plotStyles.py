@@ -1,5 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib
+# matplotlib.rc('font', family='serif')
+# matplotlib.rc('font', serif='CMU Serif')
+matplotlib.rcParams.update({'font.size': 10})
+
+matplotlib.rcParams['font.serif'] = "CMU Serif"
+# Then, "ALWAYS use sans-serif fonts"
+# matplotlib.rcParams['font.family'] = "serif"
+matplotlib.rcParams['font.family'] = "CMU Serif"
 
 def blueRedMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None):
     absmax = np.abs(Z).max()
