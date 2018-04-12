@@ -1,6 +1,12 @@
 corrections/PlotDigitizer_Windows
 data
 
+# Image files
+*.eps
+*.png
+*.bmp
+*.jpg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
