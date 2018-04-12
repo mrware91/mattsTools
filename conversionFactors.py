@@ -1,3 +1,5 @@
+import numpy as np
+
 class conversionFactors():
     def __init__(self):
         # %% Metric constants
@@ -23,12 +25,12 @@ class conversionFactors():
         self.EV_TO_AU=1/27.211;
         self.J_TO_AU=1/4.35974417e-18;
         self.D_TO_AU=1/2.541746;
-        self.INVCM_TO_AU=100/M_TO_AU*c_AU*h_AU;
-        self.KG_TO_AU=1/me_M;
-        self.AMU_TO_AU=mH_M*KG_TO_AU;
+        self.INVCM_TO_AU=100/self.M_TO_AU*self.c_AU*self.h_AU;
+        self.KG_TO_AU=1/self.me_M;
+        self.AMU_TO_AU=self.mH_M*self.KG_TO_AU;
         self.S_TO_AU=1/2.418e-17;
         self.EF_TO_AU=1/5.14220652e11; # % V/m->au
-        self.I_TO_AU=J_TO_AU/S_TO_AU/(M_TO_AU)**2*1e4;# %W/cm**2->au
+        self.I_TO_AU=self.J_TO_AU/self.S_TO_AU/(self.M_TO_AU)**2*1e4;# %W/cm**2->au
 
         self.INTENSITY_TO_AMPLITUDE_M= lambda I: 1e2*sqrt((2/self.c_M/self.e0_M)*I);# % W/cm**2->V/m
         self.INTENSITY_TO_AMPLITUDE_AU= lambda I: sqrt((2/self.c_AU/self.e0_AU)*I);# % I_au->EF_au
@@ -125,4 +127,3 @@ class conversionFactors():
             return self.intensityToMetric(atype)
         else:
             raise ValueError(measure+' is not a supported measure.')
-        
