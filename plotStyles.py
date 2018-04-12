@@ -3,6 +3,7 @@ import matplotlib.font_manager as font_manager
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
+from matplotlib.ticker import AutoMinorLocator
 # matplotlib.rc('font', family='serif')
 # matplotlib.rc('font', serif='CMU Serif')
 matplotlib.rcParams.update({'font.size': 10})
@@ -76,6 +77,7 @@ def linePlot( xData, yData,
               xLabel='x', yLabel='y',
               xLims=[None,None],
               yLims=[None,None],
+              nxMinor=None, nyMinor=None,
               newFigure=True,
               xIn=3, yIn=2, dpi=300,
               plotOptions={}):
@@ -86,7 +88,7 @@ def linePlot( xData, yData,
     plt.plot(xData, yData, **plotOptions)
     generateAxes(xData, yData, nxTicks=nxTicks, nyTicks=nyTicks,
                  xUnits=xUnits, yUnits=yUnits, xLabel=xLabel, yLabel=yLabel,
-                 xLims=xLims, yLims=yLims)
+                 xLims=xLims, yLims=yLims, nxMinor=nxMinor, nyMinor=nyMinor)
 
 def colorPlot( xData, yData, zData,
               nxTicks=5, nyTicks=5, nzTicks=5,
@@ -126,7 +128,8 @@ def generateAxes(xData, yData,
               xUnits='', yUnits='',
               xLabel='x', yLabel='y',
               xLims=[None,None],
-              yLims=[None,None]):
+              yLims=[None,None],
+              nyMinor=None,nxMinor=None):
     # Get current axes
     ax = plt.gca()
 
@@ -147,6 +150,12 @@ def generateAxes(xData, yData,
 
     plt.xlabel( generateAxisLabel( xLabel, nxMax, xUnits ) )
     plt.ylabel( generateAxisLabel( yLabel, nyMax, yUnits ) )
+
+    # Plot minor axes if nxMinor / nyMinor specified
+    if nxMinor is not None:
+        ax.xaxis.set_minor_locator( AutoMinorLocator( nxMinor ) )
+    if nyMinor is not None:
+        ax.yaxis.set_minor_locator( AutoMinorLocator( nyMinor ) )
 
     if xLims[0] is not None:
         absMax = np.abs(xLims).max()
