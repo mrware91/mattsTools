@@ -1,11 +1,29 @@
-import matplotlib.font_manager as font_manager
-
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
 from matplotlib.ticker import AutoMinorLocator
-# matplotlib.rc('font', family='serif')
-# matplotlib.rc('font', serif='CMU Serif')
+from fireIce import *
+
+################################################################################
+#~~~~~~~~~Default cycler
+################################################################################
+from cycler import cycler
+
+def setLineCycler():
+    ax = plt.gca()
+
+    colors = ['k','k','k','k']
+    linestyles = ['-','--',':','-.']
+
+    mycycler = cycler('linestyle', linestyles) + cycler('color',colors)
+
+    # plt.rc('axes',prop_cycle=mycycler)
+    ax.set_prop_cycle( mycycler )
+
+################################################################################
+#~~~~~~~~~Font properties
+################################################################################
+import matplotlib.font_manager as font_manager
 matplotlib.rcParams.update({'font.size': 10})
 
 matplotlib.rcParams['mathtext.fontset'] = "cm"
@@ -14,6 +32,21 @@ matplotlib.rcParams['font.serif'] = "CMU Serif"
 matplotlib.rcParams['font.family'] = "serif"
 # matplotlib.rcParams['font.family'] = prop.get_name()
 
+
+################################################################################
+#~~~~~~~~~Custom colormaps
+################################################################################
+import matplotlib.colors
+WR_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","red"])
+KR_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["black","red"])
+BKR_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue","black","red"])
+RW_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["red","white"])
+fireIce_cmap = fireIce()
+fire_cmap   = fire()
+
+################################################################################
+#~~~~~~~~~Default meshes
+################################################################################
 def blueRedMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None):
     absmax = np.abs(Z).max()
     if vmax is None:
@@ -26,14 +59,41 @@ def blueRedMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None):
     cbar = plt.colorbar()
     return cbar
 
-def defaultMesh( X, Y, Z, xlabel='x', ylabel='y', vmin=None, vmax=None  ):
-    plt.pcolormesh(X,Y,Z,cmap='inferno',vmin=vmin, vmax=vmax)
+def defaultMesh( X, Y, Z, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=True  ):
+    if not generateCBAR:
+        vmin, vmax = plt.gci().get_clim()
+    # plt.pcolormesh(X,Y,Z,cmap='inferno',vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
+    # plt.pcolormesh(X,Y,Z,cmap=KR_cmap,vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
+    plt.pcolormesh(X,Y,Z,cmap=fire_cmap,vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    cbar = plt.colorbar()
-    return cbar
+    if generateCBAR:
+        cbar = plt.colorbar()
+        return cbar
+    return None
 
 
+def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True  ):
+    absmax = np.abs(Z).max()
+    if vmax is None:
+        vmax = absmax
+
+    if not generateCBAR:
+        vmin, vmax = plt.gci().get_clim()
+    # plt.pcolormesh(X,Y,Z,cmap='inferno',vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
+    # plt.pcolormesh(X,Y,Z,cmap=BKR_cmap,vmin=-vmax, vmax=vmax,linewidth=0,rasterized=True)
+    plt.pcolormesh(X,Y,Z,cmap=fireIce_cmap,vmin=-vmax, vmax=vmax,linewidth=0,rasterized=True)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    if generateCBAR:
+        cbar = plt.colorbar()
+        return cbar
+    return None
+
+
+################################################################################
+#~~~~~~~~~Return defaults
+################################################################################
 def defaultCycleColors():
     colorCycle = matplotlib.rcParams['axes.prop_cycle']
     cycleColors = []
@@ -41,12 +101,16 @@ def defaultCycleColors():
         cycleColors.append(c['color'])
     return cycleColors
 
-
+################################################################################
+#~~~~~~~~~Axis generators
+################################################################################
 def generateTickLabels( ticks ):
     n = getLargestOrder(ticks)
     return [printTexFloatFor(tick,n) for tick in ticks]
 
 def generateAxisLabel( label, n, units ):
+    if n is None:
+        n = 0
     # if n == 1:
     #     return r'%s ($\times10$ %s)' % ( label, units )
     if (n==0)|(n==1):
@@ -71,47 +135,77 @@ def generateTicks( data, nTicks, dMin = None, dMax = None ):
     return ticks
 
 
+################################################################################
+#~~~~~~~~~Plot line plot
+################################################################################
 def linePlot( xData, yData,
               nxTicks=5, nyTicks=5,
               xUnits='', yUnits='',
-              xLabel='x', yLabel='y',
+              xLabel='$x$', yLabel='$y$',
               xLims=[None,None],
               yLims=[None,None],
               nxMinor=None, nyMinor=None,
               newFigure=True,
               xIn=3, yIn=2, dpi=300,
-              plotOptions={}):
+              plotOptions={},
+              squareAxes=False,
+              showAxes=True, mute_kwargs=False, **kwargs):
+
+    if (kwargs is not None) and (not mute_kwargs):
+        print 'Ignoring undefined input variable ...'
+        print kwargs.keys()
+
+    if squareAxes:
+        xIn = yIn
 
     if newFigure:
         plt.figure(figsize=(xIn, yIn), dpi=dpi)
 
+    setLineCycler()
     plt.plot(xData, yData, **plotOptions)
     generateAxes(xData, yData, nxTicks=nxTicks, nyTicks=nyTicks,
                  xUnits=xUnits, yUnits=yUnits, xLabel=xLabel, yLabel=yLabel,
-                 xLims=xLims, yLims=yLims, nxMinor=nxMinor, nyMinor=nyMinor)
+                 xLims=xLims, yLims=yLims, nxMinor=nxMinor, nyMinor=nyMinor,
+                 showAxes=showAxes)
+    if squareAxes:
+        plt.axis('equal')
 
+
+################################################################################
+#~~~~~~~~~Colorplot
+################################################################################
 def colorPlot( xData, yData, zData,
               nxTicks=5, nyTicks=5, nzTicks=5,
               xUnits='', yUnits='', zUnits='',
-              xLabel='x', yLabel='y', zLabel='z',
+              xLabel='$x$', yLabel='$y$', zLabel='$z$',
               xLims=[None,None],
               yLims=[None,None],
               zLims=[None,None],
+              divergent=False,
               newFigure=True,
               xIn=3, yIn=3, dpi=300,
-              plotOptions={}):
+              plotOptions={},
+              showAxes=True):
 
     if newFigure:
         plt.figure(figsize=(xIn, yIn), dpi=dpi)
 
-    cbar = defaultMesh( xData, yData, zData, xlabel='x', ylabel='y', vmin=None, vmax=None  )
+    if divergent:
+        cbar = divergentMesh( xData, yData, zData, xlabel='x', ylabel='y', vmax=None, generateCBAR=newFigure  )
 
-    generateColorbar( cbar, zData, ncTicks=nzTicks, cUnits=zUnits, cLabel=zLabel, cLims=zLims )
+    else:
+        cbar = defaultMesh( xData, yData, zData, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=newFigure  )
+
+    if newFigure:
+        generateColorbar( cbar, zData, ncTicks=nzTicks, cUnits=zUnits, cLabel=zLabel, cLims=zLims )
 
     generateAxes(xData.flatten(), yData.flatten(), nxTicks=nxTicks, nyTicks=nyTicks,
                  xUnits=xUnits, yUnits=yUnits, xLabel=xLabel, yLabel=yLabel,
-                 xLims=xLims, yLims=yLims)
+                 xLims=xLims, yLims=yLims, showAxes=showAxes)
 
+################################################################################
+#~~~~~~~~~Colorbar generation
+################################################################################
 def generateColorbar( cbar, cData, ncTicks=5, cUnits='', cLabel='z', cLims=[None,None] ):
     cTicks = generateTicks( cData, ncTicks, dMin=cLims[0], dMax=cLims[1] )
     cbar.set_ticks( cTicks )
@@ -123,39 +217,44 @@ def generateColorbar( cbar, cData, ncTicks=5, cUnits='', cLabel='z', cLims=[None
     if cLims[0] is not None:
         plt.clim(np.array(cLims)*1.1)
 
+################################################################################
+#~~~~~~~~~Axes generation
+################################################################################
 def generateAxes(xData, yData,
               nxTicks=5, nyTicks=5,
               xUnits='', yUnits='',
               xLabel='x', yLabel='y',
               xLims=[None,None],
               yLims=[None,None],
-              nyMinor=None,nxMinor=None):
+              nyMinor=None,nxMinor=None,
+              showAxes=True):
     # Get current axes
     ax = plt.gca()
 
-    # Set the x axes
-    xTicks = generateTicks( xData, nxTicks, dMin=xLims[0], dMax=xLims[1] )
-    ax.set_xticks( xTicks )
-    ax.set_xticklabels( generateTickLabels(xTicks) )
+    if showAxes:
+        # Set the x axes
+        xTicks = generateTicks( xData, nxTicks, dMin=xLims[0], dMax=xLims[1] )
+        ax.set_xticks( xTicks )
+        ax.set_xticklabels( generateTickLabels(xTicks) )
 
 
-    # Set the y axes
-    yTicks = generateTicks( yData, nyTicks, dMin=yLims[0], dMax=yLims[1] )
-    ax.set_yticks( yTicks )
-    ax.set_yticklabels( generateTickLabels(yTicks) )
+        # Set the y axes
+        yTicks = generateTicks( yData, nyTicks, dMin=yLims[0], dMax=yLims[1] )
+        ax.set_yticks( yTicks )
+        ax.set_yticklabels( generateTickLabels(yTicks) )
 
 
-    nxMax = getLargestOrder(xTicks)
-    nyMax = getLargestOrder(yTicks)
+        nxMax = getLargestOrder(xTicks)
+        nyMax = getLargestOrder(yTicks)
 
-    plt.xlabel( generateAxisLabel( xLabel, nxMax, xUnits ) )
-    plt.ylabel( generateAxisLabel( yLabel, nyMax, yUnits ) )
+        plt.xlabel( generateAxisLabel( xLabel, nxMax, xUnits ) )
+        plt.ylabel( generateAxisLabel( yLabel, nyMax, yUnits ) )
 
-    # Plot minor axes if nxMinor / nyMinor specified
-    if nxMinor is not None:
-        ax.xaxis.set_minor_locator( AutoMinorLocator( nxMinor ) )
-    if nyMinor is not None:
-        ax.yaxis.set_minor_locator( AutoMinorLocator( nyMinor ) )
+        # Plot minor axes if nxMinor / nyMinor specified
+        if nxMinor is not None:
+            ax.xaxis.set_minor_locator( AutoMinorLocator( nxMinor ) )
+        if nyMinor is not None:
+            ax.yaxis.set_minor_locator( AutoMinorLocator( nyMinor ) )
 
     if xLims[0] is not None:
         absMax = np.abs(xLims).max()
@@ -166,10 +265,23 @@ def generateAxes(xData, yData,
         buffer = 0.1*absMax
         plt.ylim([yLims[0]-buffer,yLims[1]+buffer])
 
+    if not showAxes:
+        # Hide the Axes
+        plt.axis('off')
+
+        # Hide grid lines
+        ax.grid(False)
+
+        # Hide axes ticks
+        ax.set_xticks([])
+        ax.set_yticks([])
+
 def savefig( name ):
     plt.savefig( name , bbox_inches='tight' )
 
-# Texifying text
+################################################################################
+#~~~~~~~~~Texifying
+################################################################################
 def printFloat( f , d=2 ):
     return ('%.'+str(d)+'f')%f
 
@@ -231,4 +343,27 @@ def getOrder( f ):
     return n
 
 
+
+################################################################################
+#~~~~~~~~~Legend generator
+################################################################################
+def addLegendAnnotation( annotation, text_pos=(0,0), arrow_pos=(0,0) ):
+    ax = plt.gca()
+
+    ax.annotate( annotation, xy=arrow_pos, xytext=text_pos,
+                arrowprops=dict(facecolor='black', arrowstyle='->'))
+
+
+################################################################################
+#~~~~~~~~~Object plotter
+################################################################################
+def plotObj2D( objDict, newFigure=True, figArgs={} ):
+    objs = objDict.keys()
+    for idx,obj in enumerate(objs):
+        if idx == 0:
+            linePlot( newFigure=newFigure,
+                     **merge_dictionaries( figArgs, objDict[obj] ) )
+        else:
+            linePlot( newFigure=False,
+                     **merge_dictionaries( figArgs, objDict[obj] ) )
 #
