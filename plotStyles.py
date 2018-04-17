@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib
 from matplotlib.ticker import AutoMinorLocator
 from fireIce import *
+from mathOperations import *
+from pyTools import *
 
 ################################################################################
 #~~~~~~~~~Default cycler
@@ -366,4 +368,103 @@ def plotObj2D( objDict, newFigure=True, figArgs={} ):
         else:
             linePlot( newFigure=False,
                      **merge_dictionaries( figArgs, objDict[obj] ) )
+
+
+################################################################################
+#~~~~~~~~~2D Vector plotting
+################################################################################
+
+def triangleMarker( phi_degrees = 0 ):
+    return (3,0,phi_degrees-90)
+
+def addLineOrientation( aline, at_point='end', rev_orientation=False, color='k', **kwargs ):
+    try:
+        aline['yData']
+    except KeyError:
+        aline = aline[ aline.keys()[0] ]
+
+    if at_point == 'end':
+        idx=aline['yData'].shape[0]-1
+        theta = np.arctan2( aline['yData'][idx]-aline['yData'][idx-1] , ( aline['xData'][idx]-aline['xData'][idx-1] ) )
+    elif at_point == 'front':
+        idx=0
+        theta = np.arctan2( aline['yData'][1]-aline['yData'][0] , ( aline['xData'][1]-aline['xData'][0] ) )
+    elif at_point == 'middle':
+        N = aline['yData'].shape[0]
+        idx = int(N/2)
+        theta = np.arctan2( aline['yData'][idx]-aline['yData'][idx-1] , ( aline['xData'][idx]-aline['xData'][idx-1] ) )
+
+    if rev_orientation:
+        theta = theta+np.pi
+
+    plt.scatter( [aline['xData'][idx]],[aline['yData'][idx]],marker=triangleMarker( theta*180./np.pi ),c=color )
+
+def addLabel( aline, label='x', at_point='end', radius=None, buffer_angle=0, color='k',**kwargs ):
+    try:
+        aline['yData']
+    except KeyError:
+        aline = aline[ aline.keys()[0] ]
+
+    if at_point == 'end':
+        idx=aline['yData'].shape[0]-1
+        theta = np.arctan2( aline['yData'][idx]-aline['yData'][idx-1] , ( aline['xData'][idx]-aline['xData'][idx-1] ) )
+    elif at_point == 'front':
+        idx=0
+        theta = np.arctan2( aline['yData'][1]-aline['yData'][0] , ( aline['xData'][1]-aline['xData'][0] ) )
+    elif at_point == 'middle':
+        N = aline['yData'].shape[0]
+        idx = int(N/2)
+        theta = np.arctan2( aline['yData'][idx]-aline['yData'][idx-1] , ( aline['xData'][idx]-aline['xData'][idx-1] ) )
+
+    theta = theta + np.pi/2.+buffer_angle*np.pi/180.
+    if radius is None:
+        radius = 0.2*np.linalg.norm( [aline['xData'][idx] , aline['yData'][idx]] )
+
+    xt = aline['xData'][idx] + radius*np.cos(theta)
+    yt = aline['yData'][idx] + radius*np.sin(theta)
+
+    plt.text( x=xt,y=yt,s=label, color=color )
+
+def plot3DAxes( labels=['x','y','z'], altLabels=['','',''] ):
+
+    xax = generateLine3D( x0=0, x1=1, y0=0., y1=0, z0=0, z1=0 )
+    yax = generateLine3D( x0=0, x1=0, y0=0, y1=1, z0=0, z1=0 )
+    zax = rotateObj3D(  generateLine3D( x0=0, x1=0, y0=0, y1=0, z0=0, z1=1, N=3 ), gamma=0, theta=90., phi=225. )
+
+    figArgs = { 'mute_kwargs':True, 'xLims':[-1,1], 'yLims':[-1,1], 'nxTicks':5, 'nyTicks':5, 'showAxes':False, 'squareAxes':True }
+
+    plotObj2D( xax, figArgs=figArgs )
+    plt.scatter( [1],[0], marker=triangleMarker(0) )
+    # plt.text( x=.9,y=.1,s=r'$\vec{v}$' )
+    addLabel( xax['line'], label=labels[0], radius=.1 )
+    addLabel( xax['line'], label=altLabels[0], radius=None, buffer_angle=180 )
+
+    plotObj2D( yax, newFigure=False, figArgs=figArgs )
+    plt.scatter( [0],[1], marker=triangleMarker(90) )
+    addLabel( yax['line'], label=labels[1], buffer_angle=0 )
+    addLabel( yax['line'], label=altLabels[1], buffer_angle=180, radius=.1, at_point='end' )
+
+
+    plotObj2D( zax , newFigure=False, figArgs=figArgs )
+    # plt.scatter( [np.cos( 225.*np.pi/180. )],[np.sin( 225.*np.pi/180. )], marker=triangleMarker(225) )
+    addLineOrientation( zax['line'], at_point='end', rev_orientation=False  )
+    addLabel( zax['line'], label=labels[2], buffer_angle=180, radius=.15, at_point='end' )
+    addLabel( zax['line'], label=altLabels[2], buffer_angle=0, radius=None, at_point='end' )
+
+def fancyLine( x0=0,x1=1,y0=0,y1=1,z0=0,z1=0, N=3,
+              newFigure=True, figArgs={}, color='k', linestyle='-', zorder=0,
+              label='x', at_point='end',
+              buffer_angle=0, radius=.2,
+              arrowOn = True):
+
+    rline = generateLine3D( x0=x0, x1=x1, y0=y0, y1=y1, z0=z0, z1=z1, N=3 )
+
+    plotObj2D(rline, newFigure = newFigure,
+              figArgs=merge_dictionaries(figArgs, {'plotOptions':{'color':color,'linestyle':linestyle,'zorder':zorder}}) )
+
+    addLabel( rline['line'], label=label, buffer_angle=buffer_angle, radius=radius, at_point=at_point, color=color )
+
+    if arrowOn:
+        addLineOrientation( rline['line'], at_point=at_point, rev_orientation=False, color=color  )
+
 #
