@@ -162,8 +162,8 @@ def linePlot( xData, yData,
 
     if newFigure:
         plt.figure(figsize=(xIn, yIn), dpi=dpi)
+        setLineCycler()
 
-    setLineCycler()
     plt.plot(xData, yData, **plotOptions)
     generateAxes(xData, yData, nxTicks=nxTicks, nyTicks=nyTicks,
                  xUnits=xUnits, yUnits=yUnits, xLabel=xLabel, yLabel=yLabel,
@@ -279,7 +279,7 @@ def generateAxes(xData, yData,
         ax.set_yticks([])
 
 def savefig( name ):
-    plt.savefig( name , bbox_inches='tight' )
+    plt.savefig( name , bbox_inches='tight', transparent=True )
 
 ################################################################################
 #~~~~~~~~~Texifying
@@ -451,7 +451,7 @@ def plot3DAxes( labels=['x','y','z'], altLabels=['','',''] ):
     addLabel( zax['line'], label=labels[2], buffer_angle=180, radius=.15, at_point='end' )
     addLabel( zax['line'], label=altLabels[2], buffer_angle=0, radius=None, at_point='end' )
 
-def fancyLine( x0=0,x1=1,y0=0,y1=1,z0=0,z1=0, N=3,
+def fancyLine( x0=0,x1=0,y0=0,y1=0,z0=0,z1=0, N=3,
               newFigure=True, figArgs={}, color='k', linestyle='-', zorder=0,
               label='x', at_point='end',
               buffer_angle=0, radius=.2,
