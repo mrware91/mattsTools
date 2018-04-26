@@ -3,6 +3,16 @@ from scipy.interpolate import interp1d
 from pyTools import *
 
 ################################################################################
+#~~~~~~~~~Log ops
+################################################################################
+def logPolyVal(p,x):
+    ord = p.order()
+    logs = []
+    for idx in xrange(ord+1):
+        logs.append( np.log( p[idx] ) + (ord-idx)*np.log(x) )
+    return logs
+
+################################################################################
 #~~~~~~~~~Symmeterize data
 ################################################################################
 def symmeterize( x, y, interp_type='cubic' ):
