@@ -61,12 +61,16 @@ def blueRedMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None):
     cbar = plt.colorbar()
     return cbar
 
-def defaultMesh( X, Y, Z, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=True  ):
+def defaultMesh( X, Y, Z, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=True, zOrder=None, plotOptions={}  ):
     if not generateCBAR:
         vmin, vmax = plt.gci().get_clim()
     # plt.pcolormesh(X,Y,Z,cmap='inferno',vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
     # plt.pcolormesh(X,Y,Z,cmap=KR_cmap,vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
-    plt.pcolormesh(X,Y,Z,cmap=fire_cmap,vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
+    if zOrder is not None:
+        plt.pcolormesh(X,Y,Z,cmap=fire_cmap,vmin=vmin, vmax=vmax,linewidth=0,rasterized=True, zorder=zOrder, **plotOptions)
+    else:
+        plt.pcolormesh(X,Y,Z,cmap=fire_cmap,vmin=vmin, vmax=vmax,linewidth=0,rasterized=True, **plotOptions)
+
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     if generateCBAR:
@@ -75,7 +79,7 @@ def defaultMesh( X, Y, Z, xlabel='x', ylabel='y', vmin=None, vmax=None, generate
     return None
 
 
-def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True  ):
+def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True, zOrder=None, plotOptions={}  ):
     absmax = np.abs(Z).max()
     if vmax is None:
         vmax = absmax
@@ -84,7 +88,10 @@ def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True
         vmin, vmax = plt.gci().get_clim()
     # plt.pcolormesh(X,Y,Z,cmap='inferno',vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
     # plt.pcolormesh(X,Y,Z,cmap=BKR_cmap,vmin=-vmax, vmax=vmax,linewidth=0,rasterized=True)
-    plt.pcolormesh(X,Y,Z,cmap=fireIce_cmap,vmin=-vmax, vmax=vmax,linewidth=0,rasterized=True)
+    if zOrder is not None:
+        plt.pcolormesh(X,Y,Z,cmap=fireIce_cmap,vmin=-vmax, vmax=vmax,linewidth=0,rasterized=True, zorder=zOrder, **plotOptions)
+    else:
+        plt.pcolormesh(X,Y,Z,cmap=fireIce_cmap,vmin=-vmax, vmax=vmax,linewidth=0,rasterized=True, **plotOptions)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     if generateCBAR:
@@ -92,6 +99,15 @@ def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True
         return cbar
     return None
 
+
+
+def fillBackground( figOpts, atZ = 0., zOrder=-100 ):
+    xg = np.linspace( figOpts['xLims'][0],figOpts['xLims'][1],3 )
+    yg = np.linspace( figOpts['yLims'][0],figOpts['yLims'][1],3 )
+
+    [XX,YY] = np.meshgrid(xg,yg)
+
+    colorPlot( XX, YY, XX*0, zOrder=zOrder, newFigure=False, **figOpts )
 
 ################################################################################
 #~~~~~~~~~Return defaults
@@ -151,7 +167,8 @@ def linePlot( xData, yData,
               xIn=3, yIn=2, dpi=300,
               plotOptions={},
               squareAxes=False,
-              showAxes=True, mute_kwargs=False, **kwargs):
+              showAxes=True, mute_kwargs=False,
+              bufferLims=False, **kwargs):
 
     if (kwargs is not None) and (not mute_kwargs):
         print 'Ignoring undefined input variable ...'
@@ -168,7 +185,7 @@ def linePlot( xData, yData,
     generateAxes(xData, yData, nxTicks=nxTicks, nyTicks=nyTicks,
                  xUnits=xUnits, yUnits=yUnits, xLabel=xLabel, yLabel=yLabel,
                  xLims=xLims, yLims=yLims, nxMinor=nxMinor, nyMinor=nyMinor,
-                 showAxes=showAxes)
+                 showAxes=showAxes, bufferLims=bufferLims)
     if squareAxes:
         plt.axis('equal')
 
@@ -187,23 +204,50 @@ def colorPlot( xData, yData, zData,
               newFigure=True,
               xIn=3, yIn=3, dpi=300,
               plotOptions={},
-              showAxes=True):
+              showAxes=True, bufferLims=False,
+              zOrder = None):
+    '''
+        colorPlot generates a texified pcolormesh plot using scientific
+        notation on the axes.
+
+        Arguments:
+        Required:
+        xData, yData, and zData: 2D arrays specifying the x,y pixel positions and the color height, z.
+
+        Optional:
+        nxTick, nyTicks, nzTicks: Number of tick marks for the x,y, and color axes
+        xUnits, yUnits, and zUnits: Unit of measurement for the x,y, and color axes
+        xLabel, yLabel, and zLabel: Label for the x,y, and color axes
+        xLims, yLims, and zLims: Limits for the x,y, and color axes
+
+        divergent: False for positive definite data. True otherwise.
+        newFigure: Set to False if you are combining with pre-existing plots.
+        xIn, yIn: x and y inches for the current frame.
+        dpi: Dots per square inch (300 for print quality)
+        plotOptions: Dictionary that gets handed to the pcolormesh command as kwargs.
+        showAxes: Turn the axes on or off
+        bufferLims: If True, adds buffer 0.1*max(abs( axes_grid )) to the limits
+        zOrder: If None, default ordering. If -100, will plot first.
+
+        Returns:
+        None, plots figure
+    '''
 
     if newFigure:
         plt.figure(figsize=(xIn, yIn), dpi=dpi)
 
     if divergent:
-        cbar = divergentMesh( xData, yData, zData, xlabel='x', ylabel='y', vmax=None, generateCBAR=newFigure  )
+        cbar = divergentMesh( xData, yData, zData, xlabel='x', ylabel='y', vmax=None, generateCBAR=newFigure, zOrder=zOrder, plotOptions=plotOptions  )
 
     else:
-        cbar = defaultMesh( xData, yData, zData, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=newFigure  )
+        cbar = defaultMesh( xData, yData, zData, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=newFigure, zOrder=zOrder, plotOptions=plotOptions  )
 
     if newFigure:
         generateColorbar( cbar, zData, ncTicks=nzTicks, cUnits=zUnits, cLabel=zLabel, cLims=zLims )
 
     generateAxes(xData.flatten(), yData.flatten(), nxTicks=nxTicks, nyTicks=nyTicks,
                  xUnits=xUnits, yUnits=yUnits, xLabel=xLabel, yLabel=yLabel,
-                 xLims=xLims, yLims=yLims, showAxes=showAxes)
+                 xLims=xLims, yLims=yLims, showAxes=showAxes, bufferLims=bufferLims)
 
 ################################################################################
 #~~~~~~~~~Colorbar generation
@@ -229,7 +273,7 @@ def generateAxes(xData, yData,
               xLims=[None,None],
               yLims=[None,None],
               nyMinor=None,nxMinor=None,
-              showAxes=True):
+              showAxes=True, bufferLims=False):
     # Get current axes
     ax = plt.gca()
 
@@ -260,11 +304,15 @@ def generateAxes(xData, yData,
 
     if xLims[0] is not None:
         absMax = np.abs(xLims).max()
-        buffer = 0.1*absMax
+        buffer = 0
+        if bufferLims:
+            buffer = 0.1*absMax
         plt.xlim([xLims[0]-buffer,xLims[1]+buffer])
     if yLims[0] is not None:
         absMax = np.abs(yLims).max()
-        buffer = 0.1*absMax
+        buffer = 0
+        if bufferLims:
+            buffer = 0.1*absMax
         plt.ylim([yLims[0]-buffer,yLims[1]+buffer])
 
     if not showAxes:
