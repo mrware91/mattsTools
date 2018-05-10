@@ -527,7 +527,10 @@ def getLastColorbar():
     im=ax.images        #this is a list of all images that have been plotted
     cb=im[-1].colorbar
     return cb
+<<<<<<< HEAD
 
 def removeLastColorbar():
     cb = getLastColorbar()
     cb.remove()
+=======
+>>>>>>> c85f6d336fb58a383d86570c92b4facc59ce8f22
