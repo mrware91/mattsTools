@@ -518,4 +518,16 @@ def fancyLine( x0=0,x1=0,y0=0,y1=0,z0=0,z1=0, N=3,
     if arrowOn:
         addLineOrientation( rline['line'], at_point=at_point, rev_orientation=False, color=color  )
 
-#
+################################################################################
+#~~~~~~~~~Colorbar
+################################################################################
+
+def getLastColorbar():
+    ax=plt.gca()        #plt.gca() for current axis, otherwise set appropriately.
+    im=ax.images        #this is a list of all images that have been plotted
+    cb=im[-1].colorbar
+    return cb
+
+def removeLastColorbar():
+    cb = getLastColorbar()
+    cb.remove()
