@@ -3,7 +3,7 @@ import numpy as np
 class conversionFactors():
     def __init__(self):
         # %% Metric constants
-        self.c_M=3e8;
+        self.c_M=3.e8;
         self.h_M=6.626e-34;
         self.kB_M=1.3806488e-23;
         self.e0_M=8.854e-12;
@@ -11,13 +11,13 @@ class conversionFactors():
         self.mH_M=1.672621e-27;
 
         # %% Hartree atomic units
-        self.hbar_AU=1;
-        self.h_AU=2*np.pi;
-        self.me_AU=1;
-        self.kC_AU=1; # % 1/(4*np.pi e0)
-        self.e0_AU=1/4/np.pi;
-        self.e_AU=1;
-        self.c_AU=137;
+        self.hbar_AU=1.;
+        self.h_AU=2.*np.pi;
+        self.me_AU=1.;
+        self.kC_AU=1.; # % 1/(4*np.pi e0)
+        self.e0_AU=1./4./np.pi;
+        self.e_AU=1.;
+        self.c_AU=137.;
 
         # %% Conversions from metric to au (and some other useful conversions)
         self.M_TO_AU=1/0.529e-10;
@@ -32,8 +32,8 @@ class conversionFactors():
         self.EF_TO_AU=1/5.14220652e11; # % V/m->au
         self.I_TO_AU=self.J_TO_AU/self.S_TO_AU/(self.M_TO_AU)**2*1e4;# %W/cm**2->au
 
-        self.INTENSITY_TO_AMPLITUDE_M= lambda I: 1e2*sqrt((2/self.c_M/self.e0_M)*I);# % W/cm**2->V/m
-        self.INTENSITY_TO_AMPLITUDE_AU= lambda I: sqrt((2/self.c_AU/self.e0_AU)*I);# % I_au->EF_au
+        self.INTENSITY_TO_AMPLITUDE_M= lambda I: 1.e2*np.sqrt((2.0/self.c_M/self.e0_M)*I);# % W/cm**2->V/m
+        self.INTENSITY_TO_AMPLITUDE_AU= lambda I: np.sqrt((2.0/self.c_AU/self.e0_AU)*I);# % I_au->EF_au
 
     def lengthToMetric(self, atype):
         if atype=='Metric':

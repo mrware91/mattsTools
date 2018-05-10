@@ -22,6 +22,9 @@ def setLineCycler():
     # plt.rc('axes',prop_cycle=mycycler)
     ax.set_prop_cycle( mycycler )
 
+def resetLineCycler():
+    setLineCycler()
+
 ################################################################################
 #~~~~~~~~~Font properties
 ################################################################################
@@ -205,7 +208,7 @@ def colorPlot( xData, yData, zData,
               xIn=3, yIn=3, dpi=300,
               plotOptions={},
               showAxes=True, bufferLims=False,
-              zOrder = None):
+              zOrder = None, generateCBAR = False):
     '''
         colorPlot generates a texified pcolormesh plot using scientific
         notation on the axes.
@@ -237,10 +240,10 @@ def colorPlot( xData, yData, zData,
         plt.figure(figsize=(xIn, yIn), dpi=dpi)
 
     if divergent:
-        cbar = divergentMesh( xData, yData, zData, xlabel='x', ylabel='y', vmax=None, generateCBAR=newFigure, zOrder=zOrder, plotOptions=plotOptions  )
+        cbar = divergentMesh( xData, yData, zData, xlabel='x', ylabel='y', vmax=None, generateCBAR=(newFigure|generateCBAR), zOrder=zOrder, plotOptions=plotOptions  )
 
     else:
-        cbar = defaultMesh( xData, yData, zData, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=newFigure, zOrder=zOrder, plotOptions=plotOptions  )
+        cbar = defaultMesh( xData, yData, zData, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=(newFigure|generateCBAR), zOrder=zOrder, plotOptions=plotOptions  )
 
     if newFigure:
         generateColorbar( cbar, zData, ncTicks=nzTicks, cUnits=zUnits, cLabel=zLabel, cLims=zLims )
