@@ -98,7 +98,8 @@ def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     if generateCBAR:
-        cbar = plt.colorbar()
+        fig = plt.gcf
+        cbar = fig.colorbar()
         return cbar
     return None
 
