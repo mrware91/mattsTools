@@ -65,8 +65,11 @@ def blueRedMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None):
     return cbar
 
 def defaultMesh( X, Y, Z, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=True, zOrder=None, plotOptions={}  ):
+    vmin0, vmax0 = vmin, vmax
+
     if (not generateCBAR):
-        vmin, vmax = plt.gci().get_clim()
+        vmin0, vmax0 = plt.gci().get_clim()
+
     if vmin0 is None:
         vmin0, vmax0 = vmin, vmax
     vmin, vmax = vmin0, vmax0
@@ -87,6 +90,8 @@ def defaultMesh( X, Y, Z, xlabel='x', ylabel='y', vmin=None, vmax=None, generate
 
 
 def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True, zOrder=None, plotOptions={}  ):
+    vmin0, vmax0 = -vmax, vmax
+
     absmax = np.abs(Z).max()
     if vmax is None:
         vmax = absmax
