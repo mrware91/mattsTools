@@ -65,8 +65,9 @@ def blueRedMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None):
     return cbar
 
 def defaultMesh( X, Y, Z, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=True, zOrder=None, plotOptions={}  ):
-    if not generateCBAR:
+    if (not generateCBAR):
         vmin, vmax = plt.gci().get_clim()
+    print vmin,vmax
     # plt.pcolormesh(X,Y,Z,cmap='inferno',vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
     # plt.pcolormesh(X,Y,Z,cmap=KR_cmap,vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
     if zOrder is not None:
@@ -86,7 +87,7 @@ def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True
     absmax = np.abs(Z).max()
     if vmax is None:
         vmax = absmax
-
+    print vmax
     if not generateCBAR:
         vmin, vmax = plt.gci().get_clim()
     # plt.pcolormesh(X,Y,Z,cmap='inferno',vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
