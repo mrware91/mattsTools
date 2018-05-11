@@ -95,12 +95,12 @@ def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True
     absmax = np.abs(Z).max()
     if vmax is None:
         vmax = absmax
-    print vmax
     if not generateCBAR:
         vmin0, vmax0 = plt.gci().get_clim()
     if vmin0 is None:
         vmin0, vmax0 = -vmax, vmax
     vmin, vmax = vmin0, vmax0
+    print vmax
     # plt.pcolormesh(X,Y,Z,cmap='inferno',vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
     # plt.pcolormesh(X,Y,Z,cmap=BKR_cmap,vmin=-vmax, vmax=vmax,linewidth=0,rasterized=True)
     if zOrder is not None:
@@ -253,10 +253,10 @@ def colorPlot( xData, yData, zData,
         plt.figure(figsize=(xIn, yIn), dpi=dpi)
 
     if divergent:
-        cbar = divergentMesh( xData, yData, zData, xlabel='x', ylabel='y', vmax=None, generateCBAR=(newFigure|generateCBAR), zOrder=zOrder, plotOptions=plotOptions  )
+        cbar = divergentMesh( xData, yData, zData, xlabel='x', ylabel='y', vmax=zLims[0], generateCBAR=(newFigure|generateCBAR), zOrder=zOrder, plotOptions=plotOptions  )
 
     else:
-        cbar = defaultMesh( xData, yData, zData, xlabel='x', ylabel='y', vmin=None, vmax=None, generateCBAR=(newFigure|generateCBAR), zOrder=zOrder, plotOptions=plotOptions  )
+        cbar = defaultMesh( xData, yData, zData, xlabel='x', ylabel='y', vmin=zLims[0], vmax=zLims[1], generateCBAR=(newFigure|generateCBAR), zOrder=zOrder, plotOptions=plotOptions  )
 
     if newFigure:
         generateColorbar( cbar, zData, ncTicks=nzTicks, cUnits=zUnits, cLabel=zLabel, cLims=zLims )
