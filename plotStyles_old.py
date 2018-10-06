@@ -5,7 +5,6 @@ from matplotlib.ticker import AutoMinorLocator
 from fireIce import *
 from mathOperations import *
 from pyTools import *
-import itertools
 
 ################################################################################
 #~~~~~~~~~Default cycler
@@ -22,10 +21,6 @@ def setLineCycler():
 
     # plt.rc('axes',prop_cycle=mycycler)
     ax.set_prop_cycle( mycycler )
-
-marker = itertools.cycle(('o','+','x','s'))
-def resetScatterCycler():
-    marker = itertools.cycle(('o','+','x','s'))
 
 def resetLineCycler():
     setLineCycler()
@@ -78,7 +73,7 @@ def defaultMesh( X, Y, Z, xlabel='x', ylabel='y', vmin=None, vmax=None, generate
     if vmin0 is None:
         vmin0, vmax0 = vmin, vmax
     vmin, vmax = vmin0, vmax0
-    print(vmin,vmax)
+    print vmin,vmax
     # plt.pcolormesh(X,Y,Z,cmap='inferno',vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
     # plt.pcolormesh(X,Y,Z,cmap=KR_cmap,vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
     if zOrder is not None:
@@ -95,7 +90,7 @@ def defaultMesh( X, Y, Z, xlabel='x', ylabel='y', vmin=None, vmax=None, generate
 
 
 def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True, zOrder=None, plotOptions={}  ):
-    vmin0, vmax0 = None,None
+    vmin0, vmax0 = -vmax, vmax
 
     absmax = np.abs(Z).max()
     if vmax is None:
@@ -105,7 +100,7 @@ def divergentMesh( X, Y, Z, xlabel='x', ylabel='y', vmax=None, generateCBAR=True
     if vmin0 is None:
         vmin0, vmax0 = -vmax, vmax
     vmin, vmax = vmin0, vmax0
-    print(vmax)
+    print vmax
     # plt.pcolormesh(X,Y,Z,cmap='inferno',vmin=vmin, vmax=vmax,linewidth=0,rasterized=True)
     # plt.pcolormesh(X,Y,Z,cmap=BKR_cmap,vmin=-vmax, vmax=vmax,linewidth=0,rasterized=True)
     if zOrder is not None:
@@ -191,8 +186,8 @@ def linePlot( xData, yData,
               bufferLims=False, **kwargs):
 
     if (kwargs is not None) and (not mute_kwargs):
-        print('Ignoring undefined input variable ...')
-        print(kwargs.keys())
+        print 'Ignoring undefined input variable ...'
+        print kwargs.keys()
 
     if squareAxes:
         xIn = yIn
@@ -202,45 +197,6 @@ def linePlot( xData, yData,
         setLineCycler()
 
     plt.plot(xData, yData, **plotOptions)
-    generateAxes(xData, yData, nxTicks=nxTicks, nyTicks=nyTicks,
-                 xUnits=xUnits, yUnits=yUnits, xLabel=xLabel, yLabel=yLabel,
-                 xLims=xLims, yLims=yLims, nxMinor=nxMinor, nyMinor=nyMinor,
-                 showAxes=showAxes, bufferLims=bufferLims)
-    if squareAxes:
-        plt.axis('equal')
-
-
-
-################################################################################
-#~~~~~~~~~Plot scatter plot
-################################################################################
-def scatterPlot( xData, yData,
-              nxTicks=5, nyTicks=5,
-              xUnits='', yUnits='',
-              xLabel='$x$', yLabel='$y$',
-              xLims=[None,None],
-              yLims=[None,None],
-              nxMinor=None, nyMinor=None,
-              newFigure=True,
-              xIn=3, yIn=2, dpi=300,
-              plotOptions={},
-              squareAxes=False,
-              showAxes=True, mute_kwargs=False,
-              bufferLims=False, **kwargs):
-
-    if (kwargs is not None) and (not mute_kwargs):
-        print('Ignoring undefined input variable ...')
-        print(kwargs.keys())
-
-    if squareAxes:
-        xIn = yIn
-
-    if newFigure:
-        plt.figure(figsize=(xIn, yIn), dpi=dpi)
-        resetScatterCycler()
-
-    plt.scatter(xData, yData, marker=next(marker), color='k', **plotOptions)
-
     generateAxes(xData, yData, nxTicks=nxTicks, nyTicks=nyTicks,
                  xUnits=xUnits, yUnits=yUnits, xLabel=xLabel, yLabel=yLabel,
                  xLims=xLims, yLims=yLims, nxMinor=nxMinor, nyMinor=nyMinor,
@@ -386,7 +342,7 @@ def generateAxes(xData, yData,
         ax.set_yticks([])
 
 def savefig( name ):
-    plt.savefig( name , bbox_inches='tight', transparent=True , dpi=300 )
+    plt.savefig( name , bbox_inches='tight', transparent=True )
 
 ################################################################################
 #~~~~~~~~~Texifying
