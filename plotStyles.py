@@ -5,6 +5,7 @@ from matplotlib.ticker import AutoMinorLocator
 from fireIce import *
 from mathOperations import *
 from pyTools import *
+from plotSelect import plotSelect
 import itertools
 
 ################################################################################
@@ -174,9 +175,9 @@ def generateTicks( data, nTicks, dMin = None, dMax = None ):
 
 
 ################################################################################
-#~~~~~~~~~Plot line plot
+#~~~~~~~~~Plot linear, log, or errorbar line plot
 ################################################################################
-def linePlot( xData, yData,
+def linePlot( xData, yData, yerr=None,
               nxTicks=5, nyTicks=5,
               xUnits='', yUnits='',
               xLabel='$x$', yLabel='$y$',
@@ -184,6 +185,7 @@ def linePlot( xData, yData,
               yLims=[None,None],
               nxMinor=None, nyMinor=None,
               newFigure=True,
+              plotType='line',
               xIn=3, yIn=2, dpi=300,
               plotOptions={},
               squareAxes=False,
@@ -201,7 +203,7 @@ def linePlot( xData, yData,
         plt.figure(figsize=(xIn, yIn), dpi=dpi)
         setLineCycler()
 
-    plt.plot(xData, yData, **plotOptions)
+    plotSelect(plotType, newFigure, xData, yData, yerr, **plotOptions)
     generateAxes(xData, yData, nxTicks=nxTicks, nyTicks=nyTicks,
                  xUnits=xUnits, yUnits=yUnits, xLabel=xLabel, yLabel=yLabel,
                  xLims=xLims, yLims=yLims, nxMinor=nxMinor, nyMinor=nyMinor,
