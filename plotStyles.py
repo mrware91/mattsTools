@@ -175,7 +175,7 @@ def generateTicks( data, nTicks, dMin = None, dMax = None ):
 
 
 ################################################################################
-#~~~~~~~~~Plot linear, log, or errorbar line plot
+#~~~~~~~~~Plot linear, log, or errorbar plot
 ################################################################################
 def linePlot( xData, yData, yerr=None,
               nxTicks=5, nyTicks=5,
@@ -204,6 +204,7 @@ def linePlot( xData, yData, yerr=None,
         setLineCycler()
 
     plotSelect(plotType, newFigure, xData, yData, yerr, **plotOptions)
+    
     generateAxes(xData, yData, nxTicks=nxTicks, nyTicks=nyTicks,
                  xUnits=xUnits, yUnits=yUnits, xLabel=xLabel, yLabel=yLabel,
                  xLims=xLims, yLims=yLims, nxMinor=nxMinor, nyMinor=nyMinor,
